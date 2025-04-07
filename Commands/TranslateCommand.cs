@@ -63,7 +63,7 @@ internal sealed class TranslateCommand : BaseCommand
 
             if (transSource.IsNullOrWhiteSpace())
             {
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.NoContent, true),
                 }.AsError(ctx)));
@@ -77,7 +77,7 @@ internal sealed class TranslateCommand : BaseCommand
             var GoogleButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "Google", false, new DiscordComponentEmoji(DiscordEmoji.FromGuildEmote(ctx.Client, 1001098467550179469)));
             var LibreTranslateButton = new DiscordButtonComponent(ButtonStyle.Primary, Guid.NewGuid().ToString(), "LibreTranslate", false, new DiscordComponentEmoji(DiscordEmoji.FromGuildEmote(ctx.Client, 1001098468602945598)));
 
-            _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+            _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
             {
                 Description = this.GetString(CommandKey.SelectProvider, true),
             }.AsAwaitingInput(ctx)).AddComponents(new List<DiscordComponent> { GoogleButton, LibreTranslateButton }).AddComponents(MessageComponents.GetCancelButton(ctx.DbUser, ctx.Bot)));
@@ -94,7 +94,7 @@ internal sealed class TranslateCommand : BaseCommand
 
             if (e.GetCustomId() == GoogleButton.CustomId)
             {
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.SelectSource, true),
                 }.AsAwaitingInput(ctx)));
@@ -118,7 +118,7 @@ internal sealed class TranslateCommand : BaseCommand
 
                 TranslationPlugin.Plugin.UserData![ctx.User.Id].LastGoogleSource = SourceResult.Result;
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.SelectTarget, true,
                         new TVar("Source", SourceResult.Result)),
@@ -143,7 +143,7 @@ internal sealed class TranslateCommand : BaseCommand
 
                 TranslationPlugin.Plugin.UserData![ctx.User.Id].LastGoogleTarget = TargetResult.Result;
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.Translating, true),
                 }.AsLoading(ctx)));
@@ -161,7 +161,7 @@ internal sealed class TranslateCommand : BaseCommand
                     {
                         Announced = true;
 
-                        _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                        _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                         {
                             Description = this.GetString(CommandKey.Queue).Build(true, new TVar("Position", PosInQueue), new TVar("Timestamp", Formatter.Timestamp(TranslationPlugin.Plugin!.TranslationClient.LastRequest.AddSeconds(PosInQueue * 10)))),
                         }.AsLoading(ctx)));
@@ -173,7 +173,7 @@ internal sealed class TranslateCommand : BaseCommand
 
                 var Translation = TranslationTask.Result;
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = $"{Translation.Item1}",
                 }.AsInfo(ctx, "", this.GetString(CommandKey.Translated,
@@ -190,7 +190,7 @@ internal sealed class TranslateCommand : BaseCommand
                 var TranslationSources = TranslationTargets!.ToList();
                 TranslationSources.Insert(0, new LibreTranslateLanguage { code = "auto", name = "Auto Detect (experimental)" });
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.SelectSource, true),
                 }.AsAwaitingInput(ctx)));
@@ -214,7 +214,7 @@ internal sealed class TranslateCommand : BaseCommand
 
                 TranslationPlugin.Plugin.UserData![ctx.User.Id].LastLibreTranslateSource = SourceResult.Result;
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.SelectTarget, true,
                         new TVar("Source", SourceResult.Result)),
@@ -239,7 +239,7 @@ internal sealed class TranslateCommand : BaseCommand
 
                 TranslationPlugin.Plugin.UserData![ctx.User.Id].LastLibreTranslateTarget = TargetResult.Result;
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = this.GetString(CommandKey.Translating, true),
                 }.AsLoading(ctx)));
@@ -259,7 +259,7 @@ internal sealed class TranslateCommand : BaseCommand
                 var translateResponse = await client.PostAsync($"http://{TranslationPlugin.Plugin!.LoadedConfig.LibreTranslateHost}/translate?{query}", null);
                 var parsedTranslation = JsonConvert.DeserializeObject<LibreTranslateTranslation>(await translateResponse.Content.ReadAsStringAsync());
 
-                _ = await this.RespondOrEdit(new DiscordMessageBuilder().WithEmbed(new DiscordEmbedBuilder
+                _ = await this.RespondOrEdit(new DiscordMessageBuilder().AddEmbed(new DiscordEmbedBuilder
                 {
                     Description = $"{parsedTranslation!.translatedText}",
                 }.AsInfo(ctx, "", this.GetString(CommandKey.Translated,
